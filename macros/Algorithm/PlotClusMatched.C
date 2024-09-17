@@ -1,0 +1,360 @@
+#include "TROOT.h"
+#include "TH1D.h"
+#include "TTree.h"
+#include "TH2D.h"
+#include "TAxis.h"
+#include "TF1.h"
+#include "TFile.h"
+#include "TMath.h"
+#include "TSystem.h"
+#include "TVector2.h"
+#include "TLorentzVector.h"
+#include "TVector3.h"
+#include "TRandom.h"
+#include <iostream>
+#include <fstream>
+#include "TMath.h"
+//#include "/usr/local/include/eigen3/Eigen/Dense"
+#include <vector>
+#include "TStyle.h"
+#include "TCanvas.h"
+
+
+
+using namespace std;
+
+using std::cout;
+using std::endl;
+
+void PlotClusMatched(){
+
+	gStyle->SetOptStat(0);
+
+	TCanvas * c = new TCanvas("c","c",600,600);
+	c->cd();
+
+
+	c->SetLeftMargin(0.14);
+
+
+	const int NFiles = 1;
+	//	TString infiles[NFiles] = {"SeedAna_Ross.root"};
+	TString infiles[NFiles] = {"/direct/sphenix+tg+tg01/hf/zshi/SeedMatchFileAll/Ntuple/SeedAna_Svtx_52271_28.root"};
+
+	TH2D * Unmatched = new TH2D("Unmatched","",200,-80,80,200,-80,80);
+	Unmatched->GetXaxis()->SetTitle("x (cm)");
+	Unmatched->GetYaxis()->SetTitle("y (cm)");
+	Unmatched->GetXaxis()->CenterTitle();
+	Unmatched->GetYaxis()->CenterTitle();
+	Unmatched->GetYaxis()->SetTitleOffset(1.4);
+	Unmatched->SetMarkerSize(2);
+
+
+	TH2D * Matched = new TH2D("Matched","",200,-80,80,200,-80,80);
+	Matched->GetXaxis()->SetTitle("x (cm)");
+	Matched->GetYaxis()->SetTitle("y (cm)");
+	Matched->GetXaxis()->CenterTitle();
+	Matched->GetYaxis()->CenterTitle();
+	Matched->GetYaxis()->SetTitleOffset(1.4);
+	Matched->SetMarkerSize(2);
+
+
+	TH2D * SvtxMatchedOpp = new TH2D("SvtxMatchedOpp","",200,-80,80,200,-80,80);
+	SvtxMatchedOpp->GetXaxis()->SetTitle("x (cm)");
+	SvtxMatchedOpp->GetYaxis()->SetTitle("y (cm)");
+	SvtxMatchedOpp->GetXaxis()->CenterTitle();
+	SvtxMatchedOpp->GetYaxis()->CenterTitle();
+	SvtxMatchedOpp->GetYaxis()->SetTitleOffset(1.4);
+	SvtxMatchedOpp->SetMarkerSize(2);
+
+
+	int Color[NFiles] = {1};
+	int Color2[NFiles] = {2};
+
+	for(int q = 0; q < 1; q++){
+
+		//	cout << "Pass Before" << endl;
+		TFile * fin = new TFile(infiles[q].Data());
+		fin->cd();
+		//		cout << "File Opened" << endl;
+
+
+		int event;
+		int siseedsize;
+		int tpcseedsize;
+		std::vector<int> * crossing = 0;
+		std::vector<int> * svtxcrossing = 0;
+
+		std::vector<float> * siseedx = 0;
+		std::vector<float> * siseedy = 0;
+		std::vector<float> * siseedz = 0;
+
+		//	int event2;
+		std::vector<float> * tpcseedx = 0;
+		std::vector<float> * tpcseedy = 0;
+		std::vector<float> * tpcseedz = 0;
+
+
+
+		std::vector<float> * siseedcharge = 0;
+		std::vector<float> * tpcseedcharge = 0;
+
+
+		float dx;
+		float dy;
+		float dz;
+
+		int dq;
+
+		std::vector<std::vector<float> > * siclusposx = 0;
+		std::vector<std::vector<float> > * siclusposy = 0;
+		std::vector<std::vector<float> > * tpcclusposx = 0;
+		std::vector<std::vector<float> > * tpcclusposy = 0;
+
+
+
+		std::vector<float> * svtxsiseedcharge = 0;
+		std::vector<float> * svtxtpcseedcharge = 0;
+
+
+		std::vector<std::vector<float> > * svtxsiclusposx = 0;
+		std::vector<std::vector<float> > * svtxsiclusposy = 0;
+		std::vector<std::vector<float> > * svtxtpcclusposx = 0;
+		std::vector<std::vector<float> > * svtxtpcclusposy = 0;
+
+
+		//TBranch *bsubjetPt=0;
+
+		cout << "Branch Set" << endl;
+
+		TTree * SeedAna = (TTree *) fin->Get("SeedAna");
+		SeedAna->SetBranchAddress("event",&event);
+
+		SeedAna->SetBranchAddress("svtxcrossing",&svtxcrossing);
+		SeedAna->SetBranchAddress("svtxsiseedx",&svtxsiseedx);
+		SeedAna->SetBranchAddress("svtxsiseedy",&svtxsiseedy);
+		SeedAna->SetBranchAddress("svtxsiseedz",&svtxsiseedz);
+
+		SeedAna->SetBranchAddress("svtxtpcseedx",&svtxtpcseedx);
+		SeedAna->SetBranchAddress("svtxtpcseedy",&svtxtpcseedy);
+		SeedAna->SetBranchAddress("svtxtpcseedz",&svtxtpcseedz);
+
+
+		SeedAna->SetBranchAddress("siclusposx",&siclusposx);
+		SeedAna->SetBranchAddress("siclusposy",&siclusposy);
+		SeedAna->SetBranchAddress("tpcclusposx",&tpcclusposx);
+		SeedAna->SetBranchAddress("tpcclusposy",&tpcclusposy);
+
+		SeedAna->SetBranchAddress("siseedcharge",&siseedcharge);
+		SeedAna->SetBranchAddress("tpcseedcharge",&tpcseedcharge);
+
+		SeedAna->SetBranchAddress("svtxsiseedcharge",&svtxsiseedcharge);
+		SeedAna->SetBranchAddress("svtxtpcseedcharge",&svtxtpcseedcharge);
+
+
+
+
+		SeedAna->SetBranchAddress("svtxsiclusposx",&svtxsiclusposx);
+		SeedAna->SetBranchAddress("svtxsiclusposy",&svtxsiclusposy);
+		SeedAna->SetBranchAddress("svtxtpcclusposx",&svtxtpcclusposx);
+		SeedAna->SetBranchAddress("svtxtpcclusposy",&svtxtpcclusposy);
+
+
+		//	cout << "Pass Branch" << endl;
+
+		int NEvents = 21;
+
+		for(int i = 0; i < NEvents; i++){
+
+
+			cout << "i = " << i << endl;
+			SeedAna->GetEntry(i);
+			siseedsize = svtxsiseedx->size();
+	//		tpcseedsize = tpcseedy->size();
+
+
+			for(int j = 0; j < siseedsize; j++){
+
+
+
+				if(crossing->at(j) != 0) continue;
+
+
+
+
+				dx = siseedx->at(j) - tpcseedx->at(j);
+				dy = siseedy->at(j) - tpcseedy->at(j);
+				dz = siseedz->at(j) - tpcseedz->at(j);
+				dq = siseedcharge->at(j) - tpcseedcharge->at(j);
+
+				//	cout << "dx = " << dx << "   dy = " << dy << "   dz = " << dz << endl;
+
+				if(abs(dx+ 0.0125462 ) < 0.001 && abs(dy+ 0.00677265 ) < 0.001 && abs(dz + 0.115363) < 0.001){
+					cout << "dx = " << dx << "   dy = " << dy << "   dz = " << dz << endl;
+					//	cout << "siclusposx->at(j).size() = " << 	siclusposx->at(j).size() << endl;
+
+
+					int siclussize = siclusposx->at(j).size();
+
+					for(int p = 0; p < siclussize; p++){
+
+
+						float clusx = siclusposx->at(j)[p];
+						float clusy = siclusposy->at(j)[p];
+
+
+						Matched->Fill(clusy,clusx);
+
+					}
+					int tpcclussize = tpcclusposx->at(k).size();
+
+					for(int p = 0; p < tpcclussize; p++){
+
+
+						float clusx = tpcclusposx->at(k)[p];
+						float clusy = tpcclusposy->at(k)[p];
+
+
+						Matched->Fill(clusy,clusx);
+
+					}
+
+				}
+
+				if(dq != 0){
+
+
+
+					int siclussize = siclusposx->at(j).size();
+
+					for(int p = 0; p < siclussize; p++){
+
+
+						float clusx = siclusposx->at(j)[p];
+						float clusy = siclusposy->at(j)[p];
+
+
+						Unmatched->Fill(clusy,clusx);
+
+					}
+					int tpcclussize = tpcclusposx->at(k).size();
+
+					for(int p = 0; p < tpcclussize; p++){
+
+
+						float clusx = tpcclusposx->at(k)[p];
+						float clusy = tpcclusposy->at(k)[p];
+
+
+						Unmatched->Fill(clusy,clusx);
+
+					}
+
+
+
+
+				}
+
+
+
+
+			}
+
+
+
+			int svtxseedsize = svtxsiseedcharge->size();
+
+			cout << "Pass Here:  " << svtxseedsize << endl;
+
+
+			//	int dq;
+
+			cout << "svtxcrossing.size() = " << svtxcrossing->size()  << endl;
+
+
+			for(int j = 0; j < svtxseedsize; j++){
+
+
+				dq = svtxsiseedcharge->at(j) - svtxtpcseedcharge->at(j);
+
+				if(svtxcrossing->at(j) != 0) continue;
+
+				if(dq != 0){
+					//		cout << "dx = " << dx << "   dy = " << dy << "   dz = " << dz << endl;
+					//	cout << "siclusposx->at(j).size() = " << 	siclusposx->at(j).size() << endl;
+
+					cout << "svtxsiseedcharge->at(j) = " << svtxsiseedcharge->at(j) << "   svtxtpcseedcharge->at(j) = " << svtxtpcseedcharge->at(j) << endl;
+
+
+					int siclussize = svtxsiclusposx->at(j).size();
+
+					for(int p = 0; p < siclussize; p++){
+
+
+						float clusx = svtxsiclusposx->at(j)[p];
+						float clusy = svtxsiclusposy->at(j)[p];
+
+
+						SvtxMatchedOpp->Fill(clusy,clusx);
+
+					}
+					int tpcclussize = svtxtpcclusposx->at(j).size();
+
+					for(int p = 0; p < tpcclussize; p++){
+
+
+						float clusx = svtxtpcclusposx->at(j)[p];
+						float clusy = svtxtpcclusposy->at(j)[p];
+
+
+						SvtxMatchedOpp->Fill(clusy,clusx);
+
+					}
+
+				}
+
+
+			}
+
+
+		}
+
+
+
+
+
+
+
+
+	}
+
+	c->cd();
+	Matched->Draw("p");
+	c->SaveAs("Matched_New.png");
+
+
+	c->cd();
+	Unmatched->Draw("p");
+	c->SaveAs("Unmatched_New.png");
+
+
+	c->cd();
+	SvtxMatchedOpp->Draw("p");
+	c->SaveAs("SvtxMatchedOpp.png");
+
+
+}
+
+
+int main(int argc, char *argv[])
+{
+	if((argc != 1))
+	{
+		std::cout << "Wrong number of inputs" << std::endl;
+		return 1;
+	}
+
+	if(argc == 1)
+		PlotClus();
+	return 0;
+}
