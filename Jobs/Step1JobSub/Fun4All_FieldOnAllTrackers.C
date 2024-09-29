@@ -165,6 +165,7 @@ R__LOAD_LIBRARY(libtrackingqa.so)
 	Mvtx_Clustering();
 	Intt_Clustering();
 
+
 	if(!silicon_only)
 	{  
 		auto tpcclusterizer = new TpcClusterizer;
@@ -172,6 +173,12 @@ R__LOAD_LIBRARY(libtrackingqa.so)
 		tpcclusterizer->set_do_hit_association(G4TPC::DO_HIT_ASSOCIATION);
 		tpcclusterizer->set_rawdata_reco();
 		se->registerSubsystem(tpcclusterizer);
+
+		std::cout << "TPC Laser Studies - Ben" << std::endl;
+
+		Tpc_LaserEventIdentifying();
+
+		std::cout << "TPC Laser Studies - Done Ben" << std::endl;
 
 		Micromegas_Clustering();
 	}

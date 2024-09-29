@@ -87,7 +87,7 @@ csh runit_beam2.csh ${Run} ${Seg}
 echo "Now LS see what we have"
 
 ls *root
-mv  track_match.root  /direct/sphenix+tg+tg01/hf/zshi/SeedMatchFileAllNew/Match/track_match_${Run}_${Seg}.root
+mv  track_match.root  /direct/sphenix+tg+tg01/hf/zshi/SeedMatchFileLowIntensity/Match/track_match_${Run}_${Seg}.root
 
 mv DSTSeedSofar.root ../detectors/sPHENIX/
 
@@ -120,9 +120,9 @@ ls *
 
 echo "OK Good"
 
-mv  DSTSeedSofar.root  /direct/sphenix+tg+tg01/hf/zshi/SeedMatchFileAllNew/DST/DSTSeedSofar_${Run}_${Seg}.root
-mv  SeedAna_Svtx.root  /direct/sphenix+tg+tg01/hf/zshi/SeedMatchFileAllNew/Ntuple/SeedAna_Svtx_${Run}_${Seg}.root
-mv  JobAna.root  /direct/sphenix+tg+tg01/hf/zshi/SeedMatchFileAllNew/Histo/JobAna_${Run}_${Seg}.root
+mv  DSTSeedSofar.root  /direct/sphenix+tg+tg01/hf/zshi/SeedMatchFileLowIntensity/DST/DSTSeedSofar_${Run}_${Seg}.root
+mv  SeedAna_Svtx.root  /direct/sphenix+tg+tg01/hf/zshi/SeedMatchFileLowIntensity/Ntuple/SeedAna_Svtx_${Run}_${Seg}.root
+mv  JobAna.root  /direct/sphenix+tg+tg01/hf/zshi/SeedMatchFileLowIntensity/Histo/JobAna_${Run}_${Seg}.root
 
 
 cd ../../

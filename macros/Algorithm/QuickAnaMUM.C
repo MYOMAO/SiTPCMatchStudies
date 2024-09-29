@@ -22,7 +22,7 @@ using namespace std::chrono;
 using std::cout;
 using std::endl;
 
-void QuickAnaMUM(int nevt){
+void QuickAnaMUM(){
     auto start = high_resolution_clock::now();
 
 	gStyle->SetOptStat(0);
@@ -34,7 +34,9 @@ void QuickAnaMUM(int nevt){
 	c->SetLeftMargin(0.14);
 
 
-	TString infiles = {"/Users/zhaozhongshi/Desktop/TempDownload/SiTPCMatchFiles/SeedAna_Svtx.root"};
+//	TString infiles = {"/Users/zhaozhongshi/Desktop/TempDownload/SiTPCMatchFiles/SeedAna_Svtx.root"};
+	TString infiles = {"/Users/zhaozhongshi/Desktop/TempDownload/SiTPCMatchFiles/Run53285.root"};
+
 	TFile * fin = new TFile(infiles.Data());
 	fin->cd();
 
@@ -59,6 +61,14 @@ void QuickAnaMUM(int nevt){
 	std::vector<float> * tpcseedpx = 0;
 	std::vector<float> * tpcseedpy = 0;
 	std::vector<float> * tpcseedpz = 0;
+
+
+
+	std::vector<float> * siseedeta = 0;
+	std::vector<float> * siseedphi = 0;
+	std::vector<float> * tpcseedeta = 0;
+	std::vector<float> * tpcseedphi = 0;
+
 
 	int svtxsiseedsize;
 	int svtxtpcseedsize;
@@ -85,8 +95,21 @@ void QuickAnaMUM(int nevt){
 	std::vector<float> * svtxsiseedcharge = 0;
 	std::vector<float> * svtxtpcseedcharge = 0;
 
+
+	std::vector<float> * svtxsiseedeta = 0;
+	std::vector<float> * svtxsiseedphi = 0;
+
+
+	std::vector<float> * svtxtpcseedeta = 0;
+	std::vector<float> * svtxtpcseedphi = 0;
+
+
+
+	bool IsLaserEvt;
+		
 	TTree * SeedAna = (TTree *) fin->Get("SeedAna");
 	SeedAna->SetBranchAddress("event",&event);
+	SeedAna->SetBranchAddress("IsLaserEvt",&IsLaserEvt);
 
 	SeedAna->SetBranchAddress("crossing",&crossing);
 	SeedAna->SetBranchAddress("siseedx",&siseedx);
@@ -108,6 +131,16 @@ void QuickAnaMUM(int nevt){
 	SeedAna->SetBranchAddress("siseedcharge",&siseedcharge);
 	SeedAna->SetBranchAddress("tpcseedcharge",&tpcseedcharge);
 
+
+	SeedAna->SetBranchAddress("siseedeta",&siseedeta);
+	SeedAna->SetBranchAddress("tpcseedeta",&tpcseedeta);
+	SeedAna->SetBranchAddress("siseedphi",&siseedphi);
+	SeedAna->SetBranchAddress("tpcseedphi",&tpcseedphi);
+
+	SeedAna->SetBranchAddress("svtxsiseedeta",&svtxsiseedeta);
+	SeedAna->SetBranchAddress("svtxtpcseedeta",&svtxtpcseedeta);
+	SeedAna->SetBranchAddress("svtxsiseedphi",&svtxsiseedphi);
+	SeedAna->SetBranchAddress("svtxtpcseedphi",&svtxtpcseedphi);
 
 	SeedAna->SetBranchAddress("svtxsiseedcharge",&svtxsiseedcharge);
 	SeedAna->SetBranchAddress("svtxtpcseedcharge",&svtxtpcseedcharge);
@@ -318,12 +351,13 @@ void QuickAnaMUM(int nevt){
 	float dpx;
 	float dpy;
 	float dpz;
+	float deta;
 
 	float pt;
 
 	int NEvents = SeedAna->GetEntries();
 
-	NEvents = nevt;
+	//NEvents = nevt;
 
 	TH2D * SiMatchSeedCorr = new TH2D("SiMatchSeedCorr","",100,0,500,100,0,500);
 	SiMatchSeedCorr->GetXaxis()->SetTitle("Total Silicon Seeds");
@@ -410,7 +444,7 @@ void QuickAnaMUM(int nevt){
 	TH1D * DeltaQPtZCZ = (TH1D *) DeltaQPtZC->Clone("DeltaQPtZCZ");
 	TH1D * DeltaQPtZCNZEff = (TH1D *) DeltaQPtZC->Clone("DeltaQPtZCNZEff");
 
-	NEvents = nevt;
+	//NEvents = nevt;
 
 	for(int i = 0; i < NEvents; i++){
 
@@ -456,16 +490,21 @@ void QuickAnaMUM(int nevt){
 				dpz = siseedpz->at(j) - tpcseedpz->at(k);
 
 				dq = siseedcharge->at(j) - tpcseedcharge->at(k);
-				
+		
+				deta = siseedeta->at(j) - tpcseedeta->at(k);
+				dphi = siseedphi->at(j) - tpcseedphi->at(k);
+
+	
 
 			//	cout << "dq = " << dq << endl;
 
-				dphi = TMath::ATan2(siseedy->at(j),siseedx->at(j)) - TMath::ATan2(tpcseedy->at(k),tpcseedx->at(k)); 
+			//	dphi = TMath::ATan2(siseedy->at(j),siseedx->at(j)) - TMath::ATan2(tpcseedy->at(k),tpcseedx->at(k)); 
 
 				DeltaXUM->Fill(dx);
 				DeltaYUM->Fill(dy);
 				DeltaZUM->Fill(dz);
 				DeltaPhiUM->Fill(dphi);
+				DeltaEtaUM->Fill(deta);
 		
 				DeltaPxUM->Fill(dpx);
 				DeltaPyUM->Fill(dpy);
@@ -485,6 +524,8 @@ void QuickAnaMUM(int nevt){
 					DeltaYZCUM->Fill(dy);
 					DeltaZZCUM->Fill(dz);
 					DeltaPhiZCUM->Fill(dphi);
+					DeltaEtaZCUM->Fill(deta);
+					
 				
 					DeltaPxZCUM->Fill(dpx);
 					DeltaPyZCUM->Fill(dpy);
@@ -537,28 +578,12 @@ void QuickAnaMUM(int nevt){
 			dy = svtxsiseedy->at(j) - svtxtpcseedy->at(j);
 			dz = svtxsiseedz->at(j) - svtxtpcseedz->at(j);
 
-			dphi = TMath::ATan2(svtxsiseedy->at(j),svtxsiseedx->at(j)) - TMath::ATan2(svtxtpcseedy->at(j),svtxtpcseedx->at(j)); 
 
+	
+			deta = svtxsiseedeta->at(j) - svtxtpcseedeta->at(j);
+			dphi = svtxsiseedphi->at(j) - svtxtpcseedphi->at(j);
 
-
-			sixcal = svtxsiseedx->at(j);
-			siycal = svtxsiseedy->at(j);
-			sizcal = svtxsiseedz->at(j);
-			sirhocal = sqrt(sixcal * sixcal + siycal * siycal);
-			sircal = sqrt(sixcal * sixcal + siycal * siycal + sizcal * sizcal);
-
-
-
-			tpcxcal = svtxtpcseedx->at(j);
-			tpcycal = svtxtpcseedy->at(j);
-			tpczcal = svtxtpcseedz->at(j);
-			tpcrhocal = sqrt(tpcxcal * tpcxcal + tpcycal * tpcycal);
-			tpcrcal = sqrt(tpcxcal * tpcxcal + tpcycal * tpcycal + tpczcal * tpczcal);
-
-			sieta = TMath::Log(sirhocal/(sircal - sizcal));
-			tpceta = TMath::Log(tpcrhocal/(tpcrcal - tpczcal));
-
-
+				
 			dpx = svtxsiseedpx->at(j) - svtxtpcseedpx->at(j);
 			dpy = svtxsiseedpy->at(j) - svtxtpcseedpy->at(j);
 			dpz = svtxsiseedpz->at(j) - svtxtpcseedpz->at(j);
@@ -570,6 +595,7 @@ void QuickAnaMUM(int nevt){
 			DeltaYM->Fill(dy);
 			DeltaZM->Fill(dz);
 			DeltaPhiM->Fill(dphi);
+			DeltaEtaM->Fill(deta);
 			
 			DeltaPxM->Fill(dpx);
 			DeltaPyM->Fill(dpy);
@@ -583,6 +609,9 @@ void QuickAnaMUM(int nevt){
 				DeltaYZCM->Fill(dy);
 				DeltaZZCM->Fill(dz);
 				DeltaPhiZCM->Fill(dphi);
+				DeltaEtaZCM->Fill(deta);
+				
+
 			
 				DeltaPxZCM->Fill(dpx);
 				DeltaPyZCM->Fill(dpy);
@@ -767,6 +796,15 @@ void QuickAnaMUM(int nevt){
 	c->SaveAs("PlotMUM/DeltaPhi.png");
 
 
+
+	DeltaEtaUM->Scale(1.0/DeltaEtaUM->Integral());
+	DeltaEtaM->Scale(1.0/DeltaEtaM->Integral());
+	DeltaEtaUM->Draw("ep");
+	DeltaEtaM->Draw("epSAME");
+	leg->Draw("SAME");	
+	DeltaEtaUM->SetMaximum(0.2);
+
+	c->SaveAs("PlotMUM/DeltaEta.png");
 
 
 

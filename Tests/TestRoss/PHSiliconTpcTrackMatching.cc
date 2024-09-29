@@ -35,6 +35,7 @@
 #include <memory>
 #include <set>      // for _Rb_tree_const_iterator
 #include <utility>  // for pair
+#include <tpc/LaserEventInfo.h>
 
 using namespace std;
 
@@ -55,16 +56,25 @@ int PHSiliconTpcTrackMatching::InitRun(PHCompositeNode *topNode)
   UpdateParametersWithMacro();
   if(_test_windows)
   {
+  auto m_laserEventInfo = findNode::getClass<LaserEventInfo>(topNode, "LaserEventInfo");
+  if (m_laserEventInfo)
+  {
+     if (m_laserEventInfo->isLaserEvent())
+     {
+       std::cout<<"This is a laser event!"<<std::endl;
+       return Fun4AllReturnCodes::EVENT_OK;
+     }
+  }	  
   _file = new TFile("track_match.root", "RECREATE");
   _tree = new TNtuple("track_match", "track_match",
-                      "event:sicrossing:siphi:sieta:six:siy:siz:tpcphi:tpceta:tpcx:tpcy:tpcz:tpcid:siid");
+                      "event:islaserevt:sicrossing:siphi:sieta:six:siy:siz:tpcphi:tpceta:tpcx:tpcy:tpcz:tpcid:siid");
   }
   // put these in the output file
   cout << PHWHERE << " Search windows: phi " << _phi_search_win << " eta "
        << _eta_search_win << " _pp_mode " << _pp_mode << " _use_intt_crossing " << _use_intt_crossing << endl;
 
 
-  cout << "getMatchingInflationFactor -> Check cut status " << "   _match_function_ptmin: " << _match_function_ptmin << endl;
+//  cout << "getMatchingInflationFactor -> Check cut status " << "   _match_function_ptmin: " << _match_function_ptmin << endl;
 
   int ret = GetNodes(topNode);
   if (ret != Fun4AllReturnCodes::EVENT_OK)
@@ -411,7 +421,7 @@ void PHSiliconTpcTrackMatching::findEtaPhiMatches(
       mag = 1.0;
     }
 
-	std::cout << "mag = " << mag << std::endl;
+	//std::cout << "mag = " << mag << std::endl;
 
     if (Verbosity() > 3)
     {
@@ -634,7 +644,7 @@ double PHSiliconTpcTrackMatching::getMatchingInflationFactor(double tpc_pt)
     mag = _match_function_a + _match_function_b / pow(tpc_pt, _match_function_pow);
   }
 
-  std::cout << " tpc_pt = " << tpc_pt << " mag " << mag << " a " << match_function_a << " b " << match_function_b << std::endl;
+	//std::cout << " tpc_pt = " << tpc_pt << " mag " << mag << " a " << _match_function_b << " b " << _match_function_b <<  "  _match_function_pow = " << _match_function_pow << std::endl;
 
   return mag;
 }

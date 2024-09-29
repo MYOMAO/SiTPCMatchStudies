@@ -24,7 +24,7 @@ using std::endl;
 
 void CheckStat(){
 
-	bool CutTPC = 0;
+	bool CutTPC = 1;
 
 	gStyle->SetOptStat(0);
 
@@ -180,7 +180,7 @@ void CheckStat(){
 		//		cout << "tpcseedx->size() = " << tpcseedx->size()  << "      tpcseedy->size() = " << tpcseedy->size() <<  "     tpcseedz->size() = " << tpcseedz->size()  << endl;
 
 		IncSiSeed = IncSiSeed + siseedsize;
-		IncTPCSeed = IncTPCSeed + tpcseedsize;
+		//IncTPCSeed = IncTPCSeed + tpcseedsize;
 
 		for(int j = 0; j < siseedsize; j++){
 
@@ -205,16 +205,17 @@ void CheckStat(){
 				//	cout << "j = " << j << "   k = " << k << endl;
 
 
+				bool goodtpcseed = true;
 
 
 					
 				float tpcz = tpcseedz->at(k);
 
 
+				if(CutTPC){
 
-				
-				if(CutTPC){ 
-					if(abs(tpcz) > 20 && abs(tpcz) < 40) continue;
+					if(abs(tpcz) < 40 && abs(tpcz) > 20) goodtpcseed = false;
+			
 				}
 
 
@@ -223,11 +224,13 @@ void CheckStat(){
 					//siseedsizezc++;
 					//		tpcseedsizezc++;
 					NZC++;
+					//if(goodtpcseed) 
 
 				}
 
 			
 
+				if(goodtpcseed) IncTPCSeed++;
 
 			}
 
@@ -242,7 +245,7 @@ void CheckStat(){
 		svtxtpcseedsize = svtxtpcseedy->size();
 
 
-		IncMatchedTrack = IncMatchedTrack + svtxsiseedsize;
+	//	IncMatchedTrack = IncMatchedTrack + svtxsiseedsize;
 
 		//	SiMatchSeedCorr->Fill();
 
@@ -253,14 +256,25 @@ void CheckStat(){
 
 		for(int j = 0; j < svtxsiseedsize; j++){
 
+			bool goodtpcseed = true;
 
 
 			if(svtxcrossing->at(j) == 0){
 
-				IncMatchedTrackZC++;
+				float tpcz = svtxtpcseedz->at(j);
+				
+				if(CutTPC){
+
+					if(abs(tpcz) < 40 && abs(tpcz) > 20) goodtpcseed = false;
+			
+				}
+
+
+				if(goodtpcseed) IncMatchedTrackZC++;
 			}
 
-
+	
+			if(goodtpcseed) IncMatchedTrack++;
 
 		}
 

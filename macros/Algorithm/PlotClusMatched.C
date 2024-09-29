@@ -39,7 +39,7 @@ void PlotClusMatched(){
 
 	const int NFiles = 1;
 	//	TString infiles[NFiles] = {"SeedAna_Ross.root"};
-	TString infiles[NFiles] = {"/direct/sphenix+tg+tg01/hf/zshi/SeedMatchFileAll/Ntuple/SeedAna_Svtx_52271_28.root"};
+	TString infiles[NFiles] = {"/Users/zhaozhongshi/Desktop/TempDownload/SiTPCMatchFiles/Run53285.root"};
 
 	TH2D * Unmatched = new TH2D("Unmatched","",200,-80,80,200,-80,80);
 	Unmatched->GetXaxis()->SetTitle("x (cm)");

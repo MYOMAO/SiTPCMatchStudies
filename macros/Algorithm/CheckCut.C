@@ -24,8 +24,6 @@ using std::endl;
 
 void CheckCut(){
 
-	bool CutTPC = 0;
-
 	gStyle->SetOptStat(0);
 
 	TCanvas * c = new TCanvas("c","c",600,600);
@@ -217,7 +215,7 @@ void CheckCut(){
 
 			if(crossing->at(j) == 0){
 
-				siseedsizezc++;
+				if(!IsLaserEvt) siseedsizezc++;
 
 			}
 		}
@@ -229,8 +227,8 @@ void CheckCut(){
 
 				float tpcz = tpcseedz->at(k);
 			//	if(abs(tpcz) > 40 || abs(tpcz) < 20) tpcseedsizeNew++;
-		
-				if() tpcseedsizeNew++;
+	
+				if(!IsLaserEvt) tpcseedsizeNew++;
 
 		}
 
@@ -259,25 +257,10 @@ void CheckCut(){
 				if(abs(dx) < 2 && abs(dy) < 2 && abs(dz) < 10  )  NTrackAfterPosOnly++; //Use Cut
 
 				
-
-				bool goodtpcseed = true;
-
-
-					
-				float tpcz = tpcseedz->at(k);
-
-
-				if(CutTPC){
-
-					if(abs(tpcz) < 40 && abs(tpcz) > 20) goodtpcseed = false;
-			
-				}
-
 	
 
 
-				
-
+			
 
 				if(crossing->at(j) == 0){
 
@@ -286,11 +269,12 @@ void CheckCut(){
 					NZC++;
 					//if(goodtpcseed) 
 
+				
 				}
 
 			
 
-				if(goodtpcseed) IncTPCSeed++;
+				IncTPCSeed++;
 
 			}
 
@@ -319,25 +303,22 @@ void CheckCut(){
 
 		for(int j = 0; j < svtxsiseedsize; j++){
 
-			bool goodtpcseed = true;
+
 
 
 			if(svtxcrossing->at(j) == 0){
 
 				float tpcz = svtxtpcseedz->at(j);
+
+
+				if(!IsLaserEvt) IncMatchedTrackZC++;
 				
-				if(CutTPC){
-
-					if(abs(tpcz) < 40 && abs(tpcz) > 20) goodtpcseed = false;
-			
-				}
-
-
-				if(goodtpcseed) IncMatchedTrackZC++;
 			}
 
+                  
+			if(!IsLaserEvt) IncMatchedTrack++;
 	
-			if(goodtpcseed) IncMatchedTrack++;
+
 
 		}
 
